@@ -1,0 +1,13 @@
+<?php
+/**
+* @file
+* A description of what your module does.
+*/
+
+/**
+ * Implements hook_help().
+ */
+function access_gdrive_help($path, $arg)
+{
+
+}
