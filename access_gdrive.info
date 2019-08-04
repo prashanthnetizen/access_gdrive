@@ -1,3 +1,8 @@
-name = Access Gdrive
-description = A description of what your module does.
+name = Access Google drive
+description = Module to interact with Google Drive API to provide permissions to files while submitting webform
 core = 7.x
+package = Webform
+dependencies[] = webform
+dependencies[] = libraries
+configure = admin/config/content/access_gdrive
+version = 7.x-1.0

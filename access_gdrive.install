@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function access_gdrive_install()
+{
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function access_gdrive_uninstall()
+{
+
+}
+
+/**
+ * Implements hook_enable().
+ */
+function access_gdrive_enable() {
+  $key = variable_get('access_gdrive_key', '');
+  if ( empty($key) ) {
+    variable_set('access_gdrive_key', md5(uniqid(rand(), TRUE)));
+  }
+}
+
+/**
+ * Implements hook_disable().
+ */
+function access_gdrive_disable()
+{
+  variable_del('access_gdrive_key');
+}
+
+
+/**
+ * Implements hook_schema().
+ */
+function access_gdrive_schema()
+{
+  $schema['access_gdrive'] = array(
+    'description' => 'Table for storing the credential details of the module Access Google Drive',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The Key ID for index purpose',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null'  => TRUE,
+      ),
+      'credentials' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'Credentials json file',
+      ),
+      'access_token' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'Access Token Json file',
+      ),
+      'app_name' => array(
+        'description' => 'Google Application Name created in Google API Console',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''),
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['access_gdrive_files'] = array(
+    'description' => 'Table for storing the File ID Strings',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Node ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null'  => TRUE,
+      ),
+      'nid' => array(
+        'description' => 'Node ID',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null'  => TRUE,
+      ),
+      'file_id' => array(
+        'description' => 'File ID String for file in Drive',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

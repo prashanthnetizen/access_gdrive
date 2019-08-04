@@ -1,13 +1,58 @@
 <?php
 /**
-* @file
-* A description of what your module does.
-*/
+ * @file
+ * A description of what your module does.
+ */
 
 /**
  * Implements hook_help().
+ * @param $path
+ * @param $arg
+ * @return array|mixed|string|null
  */
 function access_gdrive_help($path, $arg)
 {
+    switch ($path) {
+        case "admin/help#access_gdrive":
+            return t("Module to provide permissions to Google Drive Files while submitting webforms.");
+            break;
+    }
+}
 
+
+/**
+ * Implements hook_menu().
+ */
+function access_gdrive_menu()
+{
+    $items = array();
+    $items['node/%webform_menu/webform/access_gdrive'] = array(
+        'title' =>  'GDrive File Access',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('access_gdrive_edit_form', 1),
+        'access callback' => 'node_access',
+        'access arguments' => array('update', 1),
+        'file' => 'includes/access_gdrive.fileset.inc',
+        'type' => MENU_LOCAL_TASK,
+    );
+
+    $items['admin/config/content/access_gdrive'] = array(
+        'title' =>  'GDrive Access Admin Settings',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('access_gdrive_admin_form'),
+        'access arguments' => array('access administration pages'),
+        'file' => 'includes/access_gdrive.fileset.inc',
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    return $items;
+}
+
+
+function access_gdrive_edit_form($form, &$form_state, $node){
+    $default = access_gdrive_get_setting($node->nid);
+}
+
+function access_gdrive_get_setting($nid){
+    //$default = db_select()
 }
