@@ -45,26 +45,28 @@ function access_gdrive_schema()
     'fields' => array(
       'id' => array(
         'description' => 'The Key ID for index purpose',
-        'type' => 'int',
+        'type' => 'serial',
         'unsigned' => TRUE,
         'not null'  => TRUE,
       ),
       'credentials' => array(
-        'type' => 'blob',
-        'size' => 'big',
-        'serialize' => TRUE,
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'default' => '',
+        'length'  => 400,
         'description' => 'Credentials json file',
       ),
       'access_token' => array(
-        'type' => 'blob',
-        'size' => 'big',
-        'serialize' => TRUE,
-        'description' => 'Access Token Json file',
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'default' => '',
+        'length'  => 400,
+        'description' => 'Access Token json file',
       ),
       'app_name' => array(
         'description' => 'Google Application Name created in Google API Console',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 15,
         'not null' => TRUE,
         'default' => ''),
     ),
@@ -75,7 +77,13 @@ function access_gdrive_schema()
     'description' => 'Table for storing the File ID Strings',
     'fields' => array(
       'id' => array(
-        'description' => 'Node ID',
+        'description' => 'ID',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null'  => TRUE,
+      ),
+      'enable_access' => array(
+        'description' => 'Enable or Disable Access',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null'  => TRUE,
@@ -86,12 +94,17 @@ function access_gdrive_schema()
         'unsigned' => TRUE,
         'not null'  => TRUE,
       ),
-      'file_id' => array(
+      'file_ids' => array(
         'description' => 'File ID String for file in Drive',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 300,
         'not null' => TRUE,
         'default' => ''),
+      'component_value' => array(
+        'description' => 'Email field number',
+        'type' => 'int',
+        'not null' => TRUE,
+        ),
     ),
     'primary key' => array('id'),
   );

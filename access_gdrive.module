@@ -30,8 +30,7 @@ function access_gdrive_menu()
         'title' =>  'GDrive File Access',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('access_gdrive_edit_form', 1),
-        'access callback' => 'node_access',
-        'access arguments' => array('update', 1),
+        'access arguments' => array('access administration pages'),
         'file' => 'includes/access_gdrive.fileset.inc',
         'type' => MENU_LOCAL_TASK,
     );
@@ -46,11 +45,6 @@ function access_gdrive_menu()
     );
 
     return $items;
-}
-
-
-function access_gdrive_edit_form($form, &$form_state, $node){
-    $default = access_gdrive_get_setting($node->nid);
 }
 
 function access_gdrive_get_setting($nid){
