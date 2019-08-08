@@ -2,6 +2,7 @@
 /**
  * @file
  * A description of what your module does.
+ * @author Prasanth Sukhapalli
  */
 
 /**
@@ -47,6 +48,34 @@ function access_gdrive_menu()
     return $items;
 }
 
-function access_gdrive_get_setting($nid){
-    //$default = db_select()
+/**
+ * Implements hook_form_alter().
+ */
+function access_gdrive_form_alter(&$form, &$form_state, $form_id)
+{
+  if(isset($form['#node']->nid) && $form_id == 'webform_client_form_'.$form['#node']->nid){
+    array_push($form['#submit'], 'access_gdrive_webform_submit');
+  }
+}
+
+/**
+ * Implements access_gdrive_webform_submit().
+ * @param $form
+ * @param $form_state
+ */
+function access_gdrive_webform_submit($form, &$form_state)
+{
+  include_once( drupal_get_path('module', 'access_gdrive') . '/access_gdrive.class.inc' );
+  $config_details = db_query("SELECT * FROM {access_gdrive}")->fetchAssoc();
+  $node_details = db_query("SELECT * FROM {access_gdrive_files} WHERE nid = :nid", array(":nid" => $form['#node']->nid))->fetchAssoc();
+  $email = $form_state['values']['submitted'][$node_details['component_value']];
+  $obj = new Drive_Client( $config_details['app_name'], $config_details['credentials'], $config_details['access_token']);
+  $status = $obj->provide_file_permission($node_details['file_ids'], $email, 'user', 'reader');
+  if($status){
+    drupal_set_message("Permission provided for the Requested Files.");
+  }
+  $rows_updated = db_update('access_gdrive')->fields(array(
+    'access_token' => json_encode($obj->get_token()),
+  ))->execute();
+  drupal_set_message('Rows updated' . $rows_updated);
 }
