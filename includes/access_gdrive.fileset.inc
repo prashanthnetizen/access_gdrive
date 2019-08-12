@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Implements the Admin Configuration form to store the credentials and Access tokens
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+
 function access_gdrive_admin_form($form, &$form_state){
   $result = db_query("SELECT * FROM {access_gdrive}")->fetchAssoc();
   $form['credentials'] = array(
@@ -48,6 +55,15 @@ function access_gdrive_admin_form_submit($form, &$form_state){
   drupal_set_message("Your Entry has been added Successfully");
 }
 
+/***
+ * Implements the File ID edit form for each webform created
+ *
+ * @param $form
+ * @param $form_state
+ * @param $node
+ * @return mixed
+ */
+
 
 function access_gdrive_edit_form($form, &$form_state, $node){
   module_load_include('inc', 'webform', 'includes/webform.components');
@@ -56,7 +72,7 @@ function access_gdrive_edit_form($form, &$form_state, $node){
     '#title' => 'Enable Access',
     '#description' => 'Check this checkbox to enable this feature',
     '#type' => 'checkbox',
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#default_value' => $result['enable_access'],
   );
   $form['nid'] = array(
@@ -67,16 +83,16 @@ function access_gdrive_edit_form($form, &$form_state, $node){
     '#title' => 'File ID Strings',
     '#description' => 'provide file id strings separated by commas, no white spaces in between',
     '#type' => 'textarea',
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#default_value' => $result['file_ids'],
   );
-  $form['component_value'] = array(
+  $form['cid'] = array(
     '#title' => 'Email Component',
     '#description' => 'Select the component which bears the Email Value.',
     '#type' => 'select',
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#options'  =>webform_component_list($node, 'email_address', FALSE),
-    '#default_value' => $result['component_value'],
+    '#default_value' => $result['cid'],
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -84,6 +100,15 @@ function access_gdrive_edit_form($form, &$form_state, $node){
   );
   return $form;
 }
+
+/**
+ * Implements the Submit Handler for the Edit form
+ *
+ *
+ * @param $form
+ * @param $form_state
+ *
+ */
 
 function access_gdrive_edit_form_submit($form, &$form_state){
   try {
@@ -94,10 +119,10 @@ function access_gdrive_edit_form_submit($form, &$form_state){
       'nid' => $form_state['values']['nid'],
       'enable_access' => $form_state['values']['enable_access'],
       'file_ids' => $form_state['values']['files'],
-      'component_value' => $form_state['values']['component_value'],
+      'cid' => $form_state['values']['cid'],
     ))->execute();
   } catch (Exception $e) {
-
+      watchdog_exception("access_gdrive", $e->getCode(), $e->getMessage());
   }
   drupal_set_message("Your Entry has been added Successfully");
 }

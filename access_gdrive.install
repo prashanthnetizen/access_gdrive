@@ -1,6 +1,39 @@
 <?php
 
 /**
+ * Implements hook_requirements().
+ */
+/*function access_gdrive_requirements($phase)
+{
+  $requirements = array();
+  $error = FALSE;
+  $value = '';
+  if($phase == 'runtime'){
+    $api_path = libraries_get_path('google-api-php-client-2.2.3');
+    if ( !is_file($api_path . '/vendor/autoload.php')   ) {
+      $error = TRUE;
+      $value = t('The Google API client Libraries are missing.');
+    }
+  }
+
+  if ($error) {
+    $requirements['google_api_client_library'] = array(
+      'title' => t('Google Api Client Library'),
+      'value' => $value,
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+  else {
+    $requirements['webform2pdf_tcpdf_library'] = array(
+      'title' => t('Google Api Client Library'),
+      'severity' => REQUIREMENT_OK,
+    );
+  }
+  return $requirements;
+}*/
+
+
+/**
  * Implements hook_install().
  */
 function access_gdrive_install()
@@ -36,7 +69,8 @@ function access_gdrive_disable()
 
 
 /**
- * Implements hook_schema().
+ * Implements access_gdrive_schema()
+ *
  */
 function access_gdrive_schema()
 {
@@ -100,7 +134,7 @@ function access_gdrive_schema()
         'length' => 300,
         'not null' => TRUE,
         'default' => ''),
-      'component_value' => array(
+      'cid' => array(
         'description' => 'Email field number',
         'type' => 'int',
         'not null' => TRUE,

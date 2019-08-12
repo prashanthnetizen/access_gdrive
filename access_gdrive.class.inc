@@ -2,11 +2,24 @@
 
 include_once(libraries_get_path("google-api-php-client-2.2.3")  . '/vendor/autoload.php');
 
+/**
+ * Class Drive_Client handles authentication and permission operations
+ *
+ */
 
 class Drive_Client {
 
   private  $client;
   private $service;
+
+  /**
+   * Drive_Client constructor to create a Authenticated Google Client with the Access Token and Credential Values
+   * using OAuth2.0 protocol
+   * @param $application_name
+   * @param $credentials
+   * @param $access_token
+   *
+   */
 
   public function __construct($application_name, $credentials, $access_token)
   {
@@ -26,9 +39,26 @@ class Drive_Client {
     $this->service = new Google_Service_Drive($client);
   }
 
+  /**
+   * Returns the newly refreshed access token
+   *
+   * @return mixed
+   *
+   */
+
   public function get_token(){
     return $this->client->getAccessToken();
   }
+
+  /**
+   * Function to provide file permissions to individual files
+   *
+   * @param $fileId
+   * @param $value
+   * @param $type
+   * @param $role
+   * @return bool
+   */
 
   public function provide_file_permission($fileId, $value, $type, $role){
     $newPermission = new Google_Service_Drive_Permission();
