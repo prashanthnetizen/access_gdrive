@@ -2,17 +2,21 @@
 
 /**
  * @file
- * This file implements methods required for validating, submitting and storing the values of the form.
+ * This file validates submits and stores the values of the form.
  */
 
 /**
- * Implements the Admin Configuration form to store the credentials and Access tokens
- * @param $form
- * @param $form_state
+ * Implements the Admin Configuration form to store the credentials and tokens.
+ *
+ * @param array $form
+ *   Specifes contents of form.
+ * @param array $form_state
+ *   Specifies state of the form.
+ *
  * @return mixed
+ *   Returns form elements to be rendered
  */
-
-function access_gdrive_admin_form($form, &$form_state) {
+function access_gdrive_admin_form(array $form, array &$form_state) {
   $result = db_query("SELECT * FROM {access_gdrive}")->fetchAssoc();
   $form['credentials'] = array(
     '#title' => 'Google Application Credentials',
@@ -37,20 +41,22 @@ function access_gdrive_admin_form($form, &$form_state) {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Submit Configuration'
+    '#value' => 'Submit Configuration',
   );
   return $form;
 }
 
 /**
- * Implements the form handler for inserting admin form entries
+ * Implements the form handler for inserting admin form entries.
  *
- * @param $form
- * @param $form_state
+ * @param array $form
+ *   Specifies the form.
+ * @param array $form_state
+ *   Specifies state of the form.
+ *
  * @throws Exception
  */
-
-function access_gdrive_admin_form_submit($form, &$form_state) {
+function access_gdrive_admin_form_submit(array $form, array &$form_state) {
   $delete = db_delete('access_gdrive')->execute();
   $id = db_insert('access_gdrive')->fields(array(
     'credentials' => $form_state['values']['credentials'],
@@ -61,16 +67,19 @@ function access_gdrive_admin_form_submit($form, &$form_state) {
 }
 
 /***
- * Implements the File ID edit form for each webform created
+ * Implements the File ID edit form for each webform created.
  *
- * @param $form
- * @param $form_state
- * @param $node
+ * @param array $form
+ *   Specifies the form.
+ * @param array $form_state
+ *   Specifies the state of the form.
+ * @param array $node
+ *   Specifies the Node.
+ *
  * @return mixed
+ *   returns the form elements to be rendered.
  */
-
-
-function access_gdrive_edit_form($form, &$form_state, $node) {
+function access_gdrive_edit_form(array $form, array &$form_state, array $node) {
   module_load_include('inc', 'webform', 'includes/webform.components');
   $result = db_query("SELECT * FROM {access_gdrive_files} WHERE nid = :nid", array(":nid" => $node->nid))->fetchAssoc();
   $form['enable_access'] = array(
@@ -101,21 +110,20 @@ function access_gdrive_edit_form($form, &$form_state, $node) {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Save'
+    '#value' => 'Save',
   );
   return $form;
 }
 
 /**
- * Implements the Submit Handler for the Edit form
+ * Implements the Submit Handler for the Edit form.
  *
- *
- * @param $form
- * @param $form_state
- *
+ * @param array $form
+ *   Specifies the form.
+ * @param array $form_state
+ *   Specifies the state of the form.
  */
-
-function access_gdrive_edit_form_submit($form, &$form_state) {
+function access_gdrive_edit_form_submit(array $form, array &$form_state) {
   try {
     $num_deleted = db_delete('access_gdrive_files')
       ->condition('nid', $form_state['values']['nid'])
@@ -126,7 +134,8 @@ function access_gdrive_edit_form_submit($form, &$form_state) {
       'file_ids' => $form_state['values']['files'],
       'cid' => $form_state['values']['cid'],
     ))->execute();
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     watchdog_exception("access_gdrive", $e->getCode(), $e->getMessage());
   }
   drupal_set_message(t("Your Entry has been added Successfully"));

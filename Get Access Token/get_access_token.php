@@ -2,23 +2,26 @@
 
 /**
  * @file
- * Script to get the Access Token Json file. Please make sure you have the necessary SSL CA certificates installed for both php and drupal.
+ * Script to get the Access Token Json file.
  *
+ * Please make sure you have the necessary SSL CA certificates
+ * installed for both php and drupal.
  */
 
-// Path to the Libraries in your local installation. You need to change this.
-require_once 'D:/WAMP/www/drupal/sites/all/libraries/google-api-php-client-2.2.3/vendor/autoload.php';
+// Path to the Libraries in your local installation.
+require_once '/sites/all/libraries/google-api-php-client-2.2.3/vendor/autoload.php';
 
 echo "Session started for fetching the Access Token";
 
 $client = new Google_Client();
-// Replace with your Application Name
+// Replace with your Application Name.
 $client->setApplicationName('Quickstart');
 $client->setScopes(Google_Service_Drive::DRIVE);
 try {
-  // Use your credentials.json obtained from Google Api console
+  // Use your credentials.json obtained from Google Api console.
   $client->setAuthConfig('credentials.json');
-} catch (Google_Exception $e) {
+}
+catch (Google_Exception $e) {
 
 }
 $client->setAccessType('offline');
@@ -38,7 +41,8 @@ if ($client->isAccessTokenExpired()) {
   if ($client->getRefreshToken()) {
     echo "token refresh operation";
     $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-  } else {
+  }
+  else {
     // Request authorization from the user.
     $authUrl = $client->createAuthUrl();
     printf("Open the following link in your browser:\n%s\n", $authUrl);
@@ -49,7 +53,7 @@ if ($client->isAccessTokenExpired()) {
     $client->setAccessToken($accessToken);
     // Check to see if there was an error.
     if (array_key_exists('error', $accessToken)) {
-      throw new Exception(join(', ', $accessToken));
+      throw new Exception(implode(', ', $accessToken));
     }
   }
   // Save the token to a file.

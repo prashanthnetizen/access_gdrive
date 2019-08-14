@@ -1,26 +1,21 @@
 <?php
+
 /**
  * @file
- * Access Google Drive module basically enables access to specific files hosted in Google Drive.
+ * Access Google Drive module enables access to specific files in Google Drive.
  * @author Prasanth Sukhapalli (prashanthnetizen@gmail.com)
  * @copyright 2019
- *
  */
 
 /**
  * Implements hook_help().
- * @param $path
- * @param $arg
- * @return array|mixed|string|null
  */
 function access_gdrive_help($path, $arg) {
   switch ($path) {
     case "admin/help#access_gdrive":
       return t("Module to provide permissions to Google Drive Files while submitting webforms.");
-      break;
   }
 }
-
 
 /**
  * Implements hook_menu().
@@ -50,9 +45,6 @@ function access_gdrive_menu() {
 
 /**
  * Implements hook_form_alter().
- * @param $form
- * @param $form_state
- * @param $form_id
  */
 function access_gdrive_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['#node']->nid) && $form_id == 'webform_client_form_' . $form['#node']->nid) {
@@ -61,12 +53,10 @@ function access_gdrive_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Implements access_gdrive_webform_submit().
- * @param $form
- * @param $form_state
+ * Implements hook_gdrive_webform_submit().
  */
 function access_gdrive_webform_submit($form, &$form_state) {
-  include_once(drupal_get_path('module', 'access_gdrive') . '/access_gdrive.class.inc');
+  include_once drupal_get_path('module', 'access_gdrive') . '/access_gdrive.class.inc';
   try {
     $config_details = db_query("SELECT * FROM {access_gdrive}")->fetchAssoc();
     $node_details = db_query("SELECT * FROM {access_gdrive_files} WHERE nid = :nid", array(":nid" => $form['#node']->nid))->fetchAssoc();
@@ -80,12 +70,13 @@ function access_gdrive_webform_submit($form, &$form_state) {
     $files = explode(",", $node_details['file_ids']);
     $obj = new DriveClient($config_details['app_name'], $config_details['credentials'], $config_details['access_token']);
     foreach ($files as $file) {
-      $status = $obj->provide_file_permission($file, $email, 'user', 'reader');
+      $status = $obj->provideFilePermission($file, $email, 'user', 'reader');
     }
     $rows_updated = db_update('access_gdrive')->fields(array(
-      'access_token' => json_encode($obj->get_token()),
+      'access_token' => json_encode($obj->getToken()),
     ))->execute();
-  } catch (Exception $ex) {
+  }
+  catch (Exception $ex) {
     watchdog_exception('Access Google Drive', $ex, $ex->getMessage());
   }
 
