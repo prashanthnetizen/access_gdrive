@@ -1,9 +1,8 @@
 <?php
 
-/***
- * Script to get the Access Token Json file
- *
- * Please make sure you have the necessary SSL CA certificates installed for both php and drupal.
+/**
+ * @file
+ * Script to get the Access Token Json file. Please make sure you have the necessary SSL CA certificates installed for both php and drupal.
  *
  */
 
@@ -30,7 +29,7 @@ $client->setPrompt('select_account consent');
 // time.
 $tokenPath = 'token.json';
 if (file_exists($tokenPath)) {
-  $accessToken = json_decode(file_get_contents($tokenPath), true);
+  $accessToken = json_decode(file_get_contents($tokenPath), TRUE);
   $client->setAccessToken($accessToken);
 }
 // If there is no previous token or it's expired.
@@ -55,7 +54,7 @@ if ($client->isAccessTokenExpired()) {
   }
   // Save the token to a file.
   if (!file_exists(dirname($tokenPath))) {
-    mkdir(dirname($tokenPath), 0700, true);
+    mkdir(dirname($tokenPath), 0700, TRUE);
   }
   file_put_contents($tokenPath, json_encode($client->getAccessToken()));
 }

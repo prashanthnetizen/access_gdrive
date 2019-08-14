@@ -13,58 +13,49 @@
  * @param $arg
  * @return array|mixed|string|null
  */
-function access_gdrive_help($path, $arg)
-{
-    switch ($path) {
-        case "admin/help#access_gdrive":
-            return t("Module to provide permissions to Google Drive Files while submitting webforms.");
-            break;
-    }
-}
-
-
-/**
- * Implements hook_requirements().
- */
-function access_gdrive_requirements($phase)
-{
-  $requirements = array();
+function access_gdrive_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#access_gdrive":
+      return t("Module to provide permissions to Google Drive Files while submitting webforms.");
+      break;
+  }
 }
 
 
 /**
  * Implements hook_menu().
  */
-function access_gdrive_menu()
-{
-    $items = array();
-    $items['node/%webform_menu/webform/access_gdrive'] = array(
-        'title' =>  'GDrive File Access',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('access_gdrive_edit_form', 1),
-        'access arguments' => array('access administration pages'),
-        'file' => 'includes/access_gdrive.fileset.inc',
-        'type' => MENU_LOCAL_TASK,
-    );
+function access_gdrive_menu() {
+  $items = array();
+  $items['node/%webform_menu/webform/access_gdrive'] = array(
+    'title' => 'GDrive File Access',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('access_gdrive_edit_form', 1),
+    'access arguments' => array('access administration pages'),
+    'file' => 'includes/access_gdrive.fileset.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
 
-    $items['admin/config/content/access_gdrive'] = array(
-        'title' =>  'GDrive Access Admin Settings',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('access_gdrive_admin_form'),
-        'access arguments' => array('access administration pages'),
-        'file' => 'includes/access_gdrive.fileset.inc',
-        'type' => MENU_NORMAL_ITEM,
-    );
+  $items['admin/config/content/access_gdrive'] = array(
+    'title' => 'GDrive Access Admin Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('access_gdrive_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'includes/access_gdrive.fileset.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
 
-    return $items;
+  return $items;
 }
 
 /**
  * Implements hook_form_alter().
+ * @param $form
+ * @param $form_state
+ * @param $form_id
  */
-function access_gdrive_form_alter(&$form, &$form_state, $form_id)
-{
-  if(isset($form['#node']->nid) && $form_id == 'webform_client_form_'.$form['#node']->nid){
+function access_gdrive_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['#node']->nid) && $form_id == 'webform_client_form_' . $form['#node']->nid) {
     array_push($form['#submit'], 'access_gdrive_webform_submit');
   }
 }
@@ -74,29 +65,28 @@ function access_gdrive_form_alter(&$form, &$form_state, $form_id)
  * @param $form
  * @param $form_state
  */
-function access_gdrive_webform_submit($form, &$form_state)
-{
-  include_once( drupal_get_path('module', 'access_gdrive') . '/access_gdrive.class.inc' );
-  try{
+function access_gdrive_webform_submit($form, &$form_state) {
+  include_once(drupal_get_path('module', 'access_gdrive') . '/access_gdrive.class.inc');
+  try {
     $config_details = db_query("SELECT * FROM {access_gdrive}")->fetchAssoc();
     $node_details = db_query("SELECT * FROM {access_gdrive_files} WHERE nid = :nid", array(":nid" => $form['#node']->nid))->fetchAssoc();
-    if(empty($node_details) || empty($config_details) || $node_details['enable_access'] == 0){
+    if (empty($node_details) || empty($config_details) || $node_details['enable_access'] == 0) {
       return;
     }
     $email = $form_state['values']['submitted'][$node_details['cid']];
-    if(empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)){
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
       return;
     }
     $files = explode(",", $node_details['file_ids']);
-    $obj = new Drive_Client( $config_details['app_name'], $config_details['credentials'], $config_details['access_token']);
-    foreach($files as $file){
+    $obj = new DriveClient($config_details['app_name'], $config_details['credentials'], $config_details['access_token']);
+    foreach ($files as $file) {
       $status = $obj->provide_file_permission($file, $email, 'user', 'reader');
     }
     $rows_updated = db_update('access_gdrive')->fields(array(
       'access_token' => json_encode($obj->get_token()),
     ))->execute();
-  } catch(Exception $ex){
-    watchdog_exception('Access Google Drive',$ex, $ex->getMessage());
+  } catch (Exception $ex) {
+    watchdog_exception('Access Google Drive', $ex, $ex->getMessage());
   }
 
 }
