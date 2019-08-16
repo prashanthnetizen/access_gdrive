@@ -72,14 +72,14 @@ function access_gdrive_schema() {
         'type' => 'varchar',
         'not null' => TRUE,
         'default' => '',
-        'length'  => 800,
+        'length'  => 3000,
         'description' => 'Credentials json file',
       ),
       'access_token' => array(
         'type' => 'varchar',
         'not null' => TRUE,
         'default' => '',
-        'length'  => 800,
+        'length'  => 3000,
         'description' => 'Access Token json file',
       ),
       'app_name' => array(

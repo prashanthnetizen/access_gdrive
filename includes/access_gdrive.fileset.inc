@@ -23,14 +23,14 @@ function access_gdrive_admin_form(array $form, array &$form_state) {
     '#description' => 'Copy the contents from Credential json file generated in Google API console for your project',
     '#type' => 'textarea',
     '#required' => TRUE,
-    '#default_value' => $result['credentials'],
+    '#default_value' => access_gdrive_hash('decrypt', $result['credentials']),
   );
   $form['access_token'] = array(
     '#title' => 'Access Token',
     '#description' => 'Copy contents from Token json file generated using OAuth2.0 protocol',
     '#type' => 'textarea',
     '#required' => TRUE,
-    '#default_value' => $result['access_token'],
+    '#default_value' => access_gdrive_hash('decrypt', $result['access_token']),
   );
   $form['app_name'] = array(
     '#title' => 'Google App Name',
@@ -59,8 +59,8 @@ function access_gdrive_admin_form(array $form, array &$form_state) {
 function access_gdrive_admin_form_submit(array $form, array &$form_state) {
   $delete = db_delete('access_gdrive')->execute();
   $id = db_insert('access_gdrive')->fields(array(
-    'credentials' => $form_state['values']['credentials'],
-    'access_token' => $form_state['values']['access_token'],
+    'credentials' => access_gdrive_hash('encrypt', $form_state['values']['credentials']),
+    'access_token' => access_gdrive_hash('encrypt', $form_state['values']['access_token']),
     'app_name' => $form_state['values']['app_name'],
   ))->execute();
   drupal_set_message(t("Your Entry has been added Successfully"));
@@ -73,13 +73,13 @@ function access_gdrive_admin_form_submit(array $form, array &$form_state) {
  *   Specifies the form.
  * @param array $form_state
  *   Specifies the state of the form.
- * @param array $node
+ * @param object $node
  *   Specifies the Node.
  *
  * @return mixed
  *   returns the form elements to be rendered.
  */
-function access_gdrive_edit_form(array $form, array &$form_state, array $node) {
+function access_gdrive_edit_form(array $form, array &$form_state, object $node) {
   module_load_include('inc', 'webform', 'includes/webform.components');
   $result = db_query("SELECT * FROM {access_gdrive_files} WHERE nid = :nid", array(":nid" => $node->nid))->fetchAssoc();
   $form['enable_access'] = array(

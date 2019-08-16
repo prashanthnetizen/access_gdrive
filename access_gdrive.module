@@ -68,7 +68,7 @@ function access_gdrive_webform_submit($form, &$form_state) {
       return;
     }
     $files = explode(",", $node_details['file_ids']);
-    $obj = new DriveClient($config_details['app_name'], $config_details['credentials'], $config_details['access_token']);
+    $obj = new DriveClient($config_details['app_name'], access_gdrive_hash('decrypt', $config_details['credentials']), access_gdrive_hash('decrypt', $config_details['access_token']));
     foreach ($files as $file) {
       $status = $obj->provideFilePermission($file, $email, 'user', 'reader');
     }
@@ -80,4 +80,32 @@ function access_gdrive_webform_submit($form, &$form_state) {
     watchdog_exception('Access Google Drive', $ex, $ex->getMessage());
   }
 
+}
+
+/**
+ * Encrypt/ Decrypt function for storing sensitive data.
+ *
+ * @param string $action
+ *   The Sensitive String Data to encrypt or decrypt.
+ * @param string $string
+ *   Encrypt or Decrypt.
+ *
+ * @return bool|string
+ *   Returns encrypted or decrypted string
+ */
+function access_gdrive_hash($action, $string) {
+  $method = 'AES-256-CBC';
+  $key = hash('sha256', drupal_get_hash_salt());
+  // Encrypt method (AES-256-CBC) expects 16 bytes, else you'll get a warning.
+  $iv = substr(hash('sha256', variable_get('access_gdrive_key', '')), 0, 16);
+
+  switch ($action) {
+    case 'encrypt':
+      return base64_encode(openssl_encrypt($string, $method, $key, 0, $iv));
+
+    case 'decrypt':
+      return openssl_decrypt(base64_decode($string), $method, $key, 0, $iv);
+  }
+
+  return FALSE;
 }
